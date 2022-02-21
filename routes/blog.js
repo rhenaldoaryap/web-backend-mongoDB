@@ -12,16 +12,12 @@ router.get("/", function (req, res) {
   res.redirect("/posts");
 });
 
-router.get("/posts", function (req, res) {
-  res.render("posts-list");
-});
-
 router.get("/new-post", async function (req, res) {
   const authors = await db.getDb().collection("authors").find().toArray();
   res.render("create-post", { authors: authors });
 });
 
-// Start create
+// Start create Post
 router.post("/posts", async function (req, res) {
   const authorId = new ObjectId(req.body.author);
 
@@ -48,6 +44,16 @@ router.post("/posts", async function (req, res) {
   console.log(result);
   res.redirect("/posts");
 });
-// End of create
+// End of create Post
+
+// Read Post
+router.get("/posts", async function (req, res) {
+  const posts = await db
+    .getDb()
+    .collection("posts")
+    .find({}, { title: 1, summary: 1, "author.name": 1 })
+    .toArray();
+  res.render("posts-list", { posts: posts });
+});
 
 module.exports = router;
