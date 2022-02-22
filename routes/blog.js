@@ -59,4 +59,30 @@ router.get("/posts", async function (req, res) {
   res.render("posts-list", { posts: posts });
 });
 
+// Read specific post with ID identifier
+router.get("/posts/:id", async function (req, res) {
+  const postId = req.params.id;
+  // { summary: 0 } simply exclude summary document when we fetch all of the documents in collection
+  const post = await db
+    .getDb()
+    .collection("posts")
+    .findOne({ _id: new ObjectId(postId) }, { summary: 0 });
+
+  if (!post) {
+    return res.status(404).render("404");
+  }
+
+  post.humanReadableDate = post.date.toLocaleDateString("en-US", {
+    day: "numeric",
+    weekday: "long",
+    month: "long",
+    year: "numeric",
+  });
+  post.date = post.date.toISOString();
+
+  res.render("post-detail", { post: post });
+});
+// End of read specific post
+// End of read post
+
 module.exports = router;
