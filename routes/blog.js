@@ -129,5 +129,6 @@ router.post("/posts/:id/delete", async function (req, res) {
     .deleteOne({ _id: postId });
   res.redirect("/posts");
 });
+// End of delete post
 
 module.exports = router;
