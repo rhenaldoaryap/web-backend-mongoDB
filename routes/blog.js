@@ -60,13 +60,26 @@ router.get("/posts", async function (req, res) {
 });
 
 // Read specific post with ID identifier
-router.get("/posts/:id", async function (req, res) {
-  const postId = req.params.id;
+router.get("/posts/:id", async function (req, res, next) {
+  // changing to let to be able to delete the unexpected ID search by user
+  let postId = req.params.id;
+  // const postId = req.params.id;
   // { summary: 0 } simply exclude summary document when we fetch all of the documents in collection
+
+  // manually handling error the unexpectate ID
+  try {
+    postId = new ObjectId(postId);
+  } catch (error) {
+    // There are two ways to handling the unexpected ID
+    // 1. We can simply return the 404 status and render the 404 template
+    return res.status(404).render("404");
+    // 2. We using the next function middleware that provided by ExpressJS with adding the next function at the parameter and then return it and add the error parameter init.
+    // return next(error);
+  }
   const post = await db
     .getDb()
     .collection("posts")
-    .findOne({ _id: new ObjectId(postId) }, { summary: 0 });
+    .findOne({ _id: postId }, { summary: 0 });
 
   if (!post) {
     return res.status(404).render("404");
