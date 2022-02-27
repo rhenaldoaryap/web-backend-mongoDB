@@ -79,7 +79,7 @@ router.get("/posts/:id", async function (req, res, next) {
   const post = await db
     .getDb()
     .collection("posts")
-    .findOne({ _id: postId }, { summary: 0 });
+    .findOne({ _id: new ObjectId(postId) }, { summary: 0 });
 
   if (!post) {
     return res.status(404).render("404");
@@ -93,7 +93,7 @@ router.get("/posts/:id", async function (req, res, next) {
   });
   post.date = post.date.toISOString();
 
-  res.render("post-detail", { post: post });
+  res.render("post-detail", { post: post, comments: null });
 });
 // End of read specific post
 // End of read post
@@ -143,5 +143,37 @@ router.post("/posts/:id/delete", async function (req, res) {
   res.redirect("/posts");
 });
 // End of delete post
+
+// Start comment section
+router.get("/posts/:id/comments", async function (req, res) {
+  const postId = new ObjectId(req.params.id);
+  // we can comment the post collection because we not load the entire page anymore, instead we just need to send back that specific data that was requested, that specifid data is at line 154.
+  // const post = await db.getDb().collection("posts").findOne({
+  //   _id: postId,
+  // });
+  const comments = await db
+    .getDb()
+    .collection("comments")
+    .find({
+      postId: postId,
+    })
+    .toArray();
+
+  // return res.render("post-detail", { post: post, comments: comments });
+  // configuring to get raw data for comments, which means we encode data as JSON to send it back as a response
+  res.json(comments);
+});
+
+router.post("/posts/:id/comments", async function (req, res) {
+  const postId = new ObjectId(req.params.id);
+  const newComment = {
+    postId: postId,
+    title: req.body.title,
+    text: req.body.text,
+  };
+  await db.getDb().collection("comments").insertOne(newComment);
+  res.redirect("/posts/" + req.params.id);
+});
+// End of comment section
 
 module.exports = router;

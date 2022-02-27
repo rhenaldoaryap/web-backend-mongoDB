@@ -3,6 +3,7 @@ const mongodb = require("mongodb");
 
 const MongoClient = mongodb.MongoClient;
 
+// start connecting to MongoDB
 let database;
 
 async function connect() {

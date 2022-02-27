@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <%- include('includes/head', { title: post.title }) %>
+    <link rel="stylesheet" href="/styles/base.css" />
+    <link rel="stylesheet" href="/styles/forms.css" />
     <link rel="stylesheet" href="/styles/posts.css" />
+    <script src="/scripts/comments.js" defer></script>
   </head>
 
   <body>
@@ -18,6 +21,33 @@
       <hr />
       <section>
         <p id="body"><%= post.body %></p>
+      </section>
+      <section id="comments">
+        <p>
+          This post might have comments. You can load them if you want to view
+          them.
+        </p>
+        <button
+          id="load-comments-btn"
+          class="btn btn-alt"
+          data-postid="<%= post._id %>"
+        >
+          Load Comments
+        </button>
+      </section>
+      <section id="comments-form">
+        <h2>Leave a comment</h2>
+        <form action="/posts/<%= post._id %>/comments" method="POST">
+          <div class="form-control">
+            <label for="title">Comment title</label>
+            <input type="text" id="title" name="title" required />
+          </div>
+          <div class="form-control">
+            <label for="text">Your comment</label>
+            <textarea name="text" id="text" rows="3" required></textarea>
+          </div>
+          <button class="btn">Save Comment</button>
+        </form>
       </section>
     </main>
   </body>
