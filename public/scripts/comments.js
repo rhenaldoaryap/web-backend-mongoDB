@@ -41,18 +41,24 @@ async function fetchCommentsForPost() {
   // see the configure at the router (blog.js) at the GET route when we fetching the comments
   const responseData = await response.json();
 
-  // changing the DOM that visible's on the screen
-  // get access to comments HTML element
+  // check whether there is a comment or not
+  if (responseData && responseData.length > 0) {
+    // changing the DOM that visible's on the screen
+    // get access to comments HTML element
 
-  const commentsListElement = createCommentsList(responseData);
-  // set empty string to remove all the content that's currently in it
-  commentsSectionElement.innerHTML = "";
-  // preparing comment list element
-  commentsSectionElement.appendChild(commentsListElement);
+    const commentsListElement = createCommentsList(responseData);
+    // set empty string to remove all the content that's currently in it
+    commentsSectionElement.innerHTML = "";
+    // preparing comment list element
+    commentsSectionElement.appendChild(commentsListElement);
+  } else {
+    commentsSectionElement.firstElementChild.textContent =
+      "No comments here, let's create some!";
+  }
 }
 
 // prevent load the entire page
-function saveComment(event) {
+async function saveComment(event) {
   event.preventDefault();
   // send HTTP request through JavaScript
   const postId = commentsFormElement.dataset.postid;
@@ -65,7 +71,7 @@ function saveComment(event) {
   const comment = { title: enteredTitle, text: enteredText };
   // matching the URL for POST method (see blog.js at line 167)
   // by default fetch send a GET request, to change it to POST request we have to configure it with second parameter inside of an object.
-  const response = fetch(`/posts/${postId}/comments`, {
+  const response = await fetch(`/posts/${postId}/comments`, {
     method: "POST",
     body: JSON.stringify(comment),
     // telling the browser we carrying the JSON data from our own JavaScript
@@ -73,6 +79,9 @@ function saveComment(event) {
       "Content-Type": "application/json",
     },
   });
+
+  // reloading the comment section
+  fetchCommentsForPost();
 }
 
 loadCommentsBtnElement.addEventListener("click", fetchCommentsForPost);
