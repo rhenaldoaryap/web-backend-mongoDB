@@ -1,5 +1,9 @@
 const loadCommentsBtnElement = document.getElementById("load-comments-btn");
 const commentsSectionElement = document.getElementById("comments");
+// getting access to form element
+const commentsFormElement = document.querySelector("#comments-form form");
+const commentTitleElement = document.getElementById("title");
+const commentTextElement = document.getElementById("text");
 
 // expected comments parameter we get from line 38 when we parse the comment to be JSON format.
 // that holds all of commments
@@ -47,4 +51,29 @@ async function fetchCommentsForPost() {
   commentsSectionElement.appendChild(commentsListElement);
 }
 
+// prevent load the entire page
+function saveComment(event) {
+  event.preventDefault();
+  // send HTTP request through JavaScript
+  const postId = commentsFormElement.dataset.postid;
+
+  // getting the value that entered by user
+  const enteredTitle = commentTitleElement.value;
+  const enteredText = commentTextElement.value;
+
+  // the data will be send manually by our JavaScript code at line 70 in JSON format with Ajax
+  const comment = { title: enteredTitle, text: enteredText };
+  // matching the URL for POST method (see blog.js at line 167)
+  // by default fetch send a GET request, to change it to POST request we have to configure it with second parameter inside of an object.
+  const response = fetch(`/posts/${postId}/comments`, {
+    method: "POST",
+    body: JSON.stringify(comment),
+    // telling the browser we carrying the JSON data from our own JavaScript
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
 loadCommentsBtnElement.addEventListener("click", fetchCommentsForPost);
+commentsFormElement.addEventListener("submit", saveComment);
